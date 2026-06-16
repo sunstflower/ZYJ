@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { listSports, submitCheckin, listMyCheckins } from '../api/checkin'
 import { getUser, clearAuth } from '../store/auth'
 import StatusBadge from '../components/StatusBadge'
+import AiAdvicePanel from '../components/AiAdvicePanel'
 
 // 用户中心：提交打卡 + 查看本人记录（见 docs/04 3.2~3.4）
 export default function UserHome() {
@@ -98,6 +99,9 @@ export default function UserHome() {
             </button>
           </form>
         </section>
+
+        {/* AI 健身建议 */}
+        <AiAdvicePanel />
 
         {/* 我的打卡记录 */}
         <section className="bg-white rounded-xl shadow p-6">

@@ -23,6 +23,24 @@
 
 ## 工作日志
 
+### 2026-06-16 — 本机全流程跑通（前后端 + AI，端到端）✅
+
+- 环境实况：MySQL 8.0.46 在 `127.0.0.1:3306` 运行，`jsa` 库已初始化（3 用户/5 项目/5 打卡）；本机仅 JDK24、Maven 跑在 JDK23（**无 JDK17**），Java 向后兼容，`--release 17` 编译 + 高版本运行无碍（演示机仍按 D-7 装 17）。
+- **端口**：8080 仍被 Docker 占用 → 后端用 `--server.port=8081` 启动，0.7s Started。
+- **前端代理改造**：`vite.config.js` 的 `/api` target 改为读 `process.env.VITE_API_TARGET`（默认 8080），本机用 `VITE_API_TARGET=http://localhost:8081 npm run dev` 对齐 8081。提交默认值不变，演示机无冲突时零改动。
+- **后端 curl 全绿**：alice 登录 ✓ / 运动项目 ✓ / **AI 建议 Mock ✓** / 提交打卡(id=6,PENDING) ✓ / 本人记录 ✓；admin 登录 ✓ / 待审核列表 ✓ / 审核通过 id=6→APPROVED+reviewer ✓ / 重复审核 1003 ✓ / 普通用户访问管理接口 403 ✓ / 无 token 401 ✓。
+- **前端经 vite 代理全绿**：SPA 首页 200 ✓ / 登录经 `5173 /api → 8081` ✓ / AI 建议经代理 ✓（含 `includeHistory=true`，Mock 当前忽略该参数，符合一期）。
+- 结论：浏览器访问 `http://localhost:5173`，用 `alice/123456` 或 `admin/123456` 即可走完「登录 → 打卡 → AI 提问 → 管理员审核」全链路。两个服务以后台进程运行（后端日志 `/tmp/jsa-backend.log`，前端 `/tmp/jsa-frontend.log`）。
+
+### 2026-06-16 — 前端实现 AI 健身建议对话 UI（里程碑一前端部分）✅
+
+- 前端已由用户 `npm install` 并跑起来。补齐**剩余业务代码**：AI 健身建议对话功能（此前前端无入口，后端 `AiController` + `MockAiAdviceService` 已就绪）。
+- 新增 `frontend/src/api/ai.js`：`getAdvice(question, includeHistory)` → `POST /api/ai/advice`，复用 http 拦截器拆响应体。
+- 新增 `frontend/src/components/AiAdvicePanel.jsx`：对话面板（问/答气泡列表、`AI 思考中…` loading、`结合我的打卡记录` 开关对应 `includeHistory`、回显 model/createdAt、失败回填占位 + 拦截器 toast）。一次性返回（非流式，符合 docs/05 一期）。
+- `frontend/src/pages/UserHome.jsx`：在「提交打卡」与「我的打卡记录」之间嵌入 `<AiAdvicePanel />`。
+- **验证**：`vite build` 通过（98 modules transformed，0 报错）。`docs/05` 里程碑一前端部分完成；端到端需后端运行后实测（Mock 返回模板建议）。
+- 备注：`includeHistory` 后端 Mock 当前忽略（docs/05 列为三期），UI 开关已就位、参数已透传，二/三期接真实模型时后端补上下文构造即可。
+
 ### 2026-06-16 — 接入本机 MySQL8 + 端到端联调通过 ✅
 
 - 本机 MySQL 实测：`mysql` 已切换为 Homebrew **8.0.46**（brew 服务 `mysql@8.0` 已 started），密码 `520213`。`application.yml` 密码已更新。
