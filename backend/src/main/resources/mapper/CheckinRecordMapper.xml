@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsa.dao.CheckinRecordMapper">
+
+    <!-- 原始记录映射 -->
+    <resultMap id="RecordMap" type="com.jsa.entity.CheckinRecord">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="sportId" column="sport_id"/>
+        <result property="content" column="content"/>
+        <result property="status" column="status"/>
+        <result property="checkinTime" column="checkin_time"/>
+        <result property="reviewerId" column="reviewer_id"/>
+        <result property="reviewTime" column="review_time"/>
+    </resultMap>
+
+    <!-- 联表视图映射（含用户名/项目名/审核人昵称） -->
+    <resultMap id="CheckinVoMap" type="com.jsa.dto.response.CheckinVO">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="nickname" column="nickname"/>
+        <result property="sportId" column="sport_id"/>
+        <result property="sportName" column="sport_name"/>
+        <result property="content" column="content"/>
+        <result property="status" column="status"/>
+        <result property="checkinTime" column="checkin_time"/>
+        <result property="reviewerId" column="reviewer_id"/>
+        <result property="reviewerNickname" column="reviewer_nickname"/>
+        <result property="reviewTime" column="review_time"/>
+    </resultMap>
+
+    <!-- TODO: insert（useGeneratedKeys 回填 id） -->
+    <!--
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO checkin_record (user_id, sport_id, content, status, checkin_time)
+        VALUES (#{userId}, #{sportId}, #{content}, #{status}, #{checkinTime})
+    </insert>
+    -->
+
+    <!-- TODO: findById -->
+    <!--
+    <select id="findById" resultMap="RecordMap">
+        SELECT * FROM checkin_record WHERE id = #{id}
+    </select>
+    -->
+
+    <!-- TODO: findByUser（联表 sport，按状态可选过滤） -->
+    <!--
+    <select id="findByUser" resultMap="CheckinVoMap">
+        SELECT r.*, s.name AS sport_name
+        FROM checkin_record r
+        JOIN sport s ON r.sport_id = s.id
+        WHERE r.user_id = #{userId}
+        <if test="status != null and status != ''"> AND r.status = #{status} </if>
+        ORDER BY r.checkin_time DESC
+    </select>
+    -->
+
+    <!-- TODO: findAll（联表 user + sport + 审核人，管理员） -->
+    <!--
+    <select id="findAll" resultMap="CheckinVoMap">
+        SELECT r.*, u.username, u.nickname, s.name AS sport_name,
+               rv.nickname AS reviewer_nickname
+        FROM checkin_record r
+        JOIN user u   ON r.user_id = u.id
+        JOIN sport s  ON r.sport_id = s.id
+        LEFT JOIN user rv ON r.reviewer_id = rv.id
+        <where>
+            <if test="status != null and status != ''"> r.status = #{status} </if>
+        </where>
+        ORDER BY r.checkin_time DESC
+    </select>
+    -->
+
+    <!-- TODO: updateReview -->
+    <!--
+    <update id="updateReview">
+        UPDATE checkin_record
+        SET status = #{status}, reviewer_id = #{reviewerId}, review_time = #{reviewTime}
+        WHERE id = #{id}
+    </update>
+    -->
+
+</mapper>

@@ -1,0 +1,41 @@
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  application:
+    name: jsa
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # JDBC URL 兼容参数见 docs/06：编码、时区、SSL、公钥检索
+    url: jdbc:mysql://localhost:3306/jsa?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    # 演示机不同时，仅改此处账号密码，勿改代码（见 docs/02 第8节）
+    password: root
+
+# MyBatis 配置
+mybatis:
+  # Mapper XML 位置
+  mapper-locations: classpath:mapper/*.xml
+  # 实体别名包
+  type-aliases-package: com.jsa.entity
+  configuration:
+    # 下划线列名 -> 驼峰属性自动映射（user_id -> userId）
+    map-underscore-to-camel-case: true
+
+# AI 健身建议（预留，见 docs/05）。一期 false：走 MockAiAdviceService
+ai:
+  enabled: false
+  provider: claude
+  api-key: ${AI_API_KEY:}
+  base-url: https://api.anthropic.com
+  model: claude-haiku-4-5
+  timeout-ms: 15000
+
+logging:
+  level:
+    com.jsa: debug

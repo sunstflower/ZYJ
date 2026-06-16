@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jsa.dao.SportMapper">
+
+    <resultMap id="SportMap" type="com.jsa.entity.Sport">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <!-- TODO: findAll -->
+    <!--
+    <select id="findAll" resultMap="SportMap">
+        SELECT * FROM sport ORDER BY id
+    </select>
+    -->
+
+    <!-- TODO: findById -->
+    <!--
+    <select id="findById" resultMap="SportMap">
+        SELECT * FROM sport WHERE id = #{id}
+    </select>
+    -->
+
+</mapper>

@@ -23,6 +23,22 @@
 
 ## 工作日志
 
+### 2026-06-16 — 搭建前后端工程骨架（按文档）
+
+- **后端**（`backend/`，Maven）：
+  - `pom.xml`：Spring Boot 3.2.10 + JDK17 + web/validation + mybatis-spring-boot-starter 3.0.3 + mysql-connector-j。
+  - 分层骨架（com.jsa）：`controller`(Auth/Sport/Checkin/Ai)、`service`+`service/impl`、`dao`(Mapper)、`entity`、`dto/request`、`dto/response`。
+  - 横切：`common`(Result/ResultCode/BusinessException/AuthSession/TokenStore/CheckinStatus)、`exception/GlobalExceptionHandler`、`config/WebMvcConfig`(CORS+拦截器)、`interceptor/AuthInterceptor`。
+  - `resources`：`application.yml`(含 docs/06 的 JDBC 兼容参数)、`mapper/*.xml`(含 resultMap，SQL 以注释 TODO 形式给出)、`db/init.sql`。
+  - 业务逻辑（Auth/Sport/Checkin 的 Service 实现 + Mapper SQL）为 **TODO 桩**（抛 UnsupportedOperationException），下一阶段实现。
+  - AI：`MockAiAdviceService` 一期已实现（返回模板建议，`@ConditionalOnProperty ai.enabled=false`）。
+- **前端**（`frontend/`，Vite）：
+  - 配置：`package.json`(React18/router6/axios/react-hot-toast/tailwind3)、`vite.config.js`(/api 代理 8080)、`tailwind/postcss config`、`index.html`。
+  - `src`：`main.jsx`(Toaster)、`App.jsx`(路由+守卫)、`api`(http 拦截器/auth/checkin)、`store/auth.js`、`pages`(Login/UserHome/AdminHome)、`components/StatusBadge`。
+- **根目录**：`README.md`(启动/打包说明)、`.gitattributes`(换行约定)、`backend/.gitignore`、`frontend/.gitignore`。
+- **注意**：原 `README.md`（原始需求原文）被项目 README 覆盖，已将原文存档到 `docs/00-原始需求.md`。
+- 结果：骨架完成，结构与文档一致。**尚未实际编译/运行**（本机还未装 JDK17，见待确认项）。
+
 ### 2026-06-16 — 记录本机环境 + 跨平台兼容注意事项
 
 - 检测本机（Mac 开发机）实际环境：macOS 15.5 / arm64；`java`=OpenJDK 24，但 Maven 跑在 OpenJDK 23 且 `JAVA_HOME` 未设置（三者不一致）；Maven 3.9.9；Node v25.8.2 / npm 11.11.1；MySQL 9.2.0；Git 2.49.0。

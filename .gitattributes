@@ -1,0 +1,13 @@
+# 跨平台换行符约定（见 docs/06 第3节）
+* text=auto
+
+# 明确特定文件的换行符
+*.sh   text eol=lf
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+# 二进制文件不做换行转换
+*.jar  binary
+*.png  binary
+*.jpg  binary
+*.ico  binary
