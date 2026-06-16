@@ -50,6 +50,13 @@ mvn spring-boot:run
 # 启动成功后控制台出现 "Started JsaApplication on port 8080"
 ```
 
+> **AI 健身建议**：默认 `ai.enabled=true` 接 DeepSeek。Key 不入库——把真实 Key 写入 gitignored 的
+> `backend/src/main/resources/application-local.yml`（`ai.api-key: sk-xxx`），并以 profile `local` 启动：
+> `mvn spring-boot:run -Dspring-boot.run.profiles=local`。
+> 离线/无 Key 时会自动降级返回通用建议；想纯离线演示可将 `application.yml` 的 `ai.enabled` 改为 `false` 走 Mock。
+> 若 8080 被占用（如本机 Docker），加 `-Dspring-boot.run.arguments=--server.port=8081`，
+> 前端用 `VITE_API_TARGET=http://localhost:8081 npm run dev` 对齐。
+
 ### 3. 前端
 
 ```bash

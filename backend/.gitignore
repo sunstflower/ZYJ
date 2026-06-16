@@ -4,3 +4,7 @@ target/
 *.iml
 *.log
 .DS_Store
+
+# 本地私密配置（含 AI API Key），勿入库（见 docs/05）
+src/main/resources/application-local.yml
+application-local.yml

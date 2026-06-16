@@ -23,6 +23,21 @@
 
 ## 工作日志
 
+### 2026-06-16 — AI 接入真实大模型 DeepSeek（二期 + 三期 includeHistory）✅
+
+- **实现 `RealAiAdviceService`**（`@ConditionalOnProperty ai.enabled=true`，与 Mock 二选一注入 `AiController`）：
+  - 用 Spring `RestClient` 调 DeepSeek OpenAI 兼容接口 `POST https://api.deepseek.com/chat/completions`（无需新增 Maven 依赖，离线可编译）。
+  - 连接超时 10s + 读超时 `ai.timeout-ms`(30s)；解析 `choices[0].message.content`，回填实际 `model`。
+  - **降级**（docs/05 §3）：任何异常/空响应/空 Key → 返回 `model="fallback"` 的通用建议，不抛 500、不影响其它接口。
+  - **includeHistory=true**（docs/05 §5，三期）：拼接本人近期 ≤10 条「已通过」打卡作为上下文，仅本人数据。
+- **配置**：`application.yml` 改 `ai.enabled=true / provider=deepseek / base-url=https://api.deepseek.com / model=deepseek-chat / timeout-ms=30000`，`api-key` 留空。
+- **Key 安全（不入库）**：真实 Key 写进 gitignored 的 `backend/src/main/resources/application-local.yml`（`ai.api-key`），启动加 `-Dspring-boot.run.profiles=local`。`.gitignore` 已加该路径，`git check-ignore` 确认忽略、`git status` 不含该文件。
+- **端到端实测**（经 vite 代理 5173 → 8081 → DeepSeek，profile=local）：
+  - 启动日志：`RealAiAdviceService 启用 … apiKey=<已配置>`，profile active=local，0.67s Started。
+  - 无历史提问 → 返回完整 PPL 增肌计划，`model=deepseek-v4-flash` ✓。
+  - `includeHistory=true` → AI 准确引用 alice 的真实记录（跑步/骑行/瑜伽、练胸和背，甚至点出无意义内容），上下文拼接生效 ✓。
+- **未做/留意**：降级分支为代码路径正确（空 Key 已实测走 fallback 日志），但未强制触发线上 4xx/超时实测；SSE 流式仍未做；DeepSeek 调用按 token 计费（注意额度）。
+
 ### 2026-06-16 — 本机全流程跑通（前后端 + AI，端到端）✅
 
 - 环境实况：MySQL 8.0.46 在 `127.0.0.1:3306` 运行，`jsa` 库已初始化（3 用户/5 项目/5 打卡）；本机仅 JDK24、Maven 跑在 JDK23（**无 JDK17**），Java 向后兼容，`--release 17` 编译 + 高版本运行无碍（演示机仍按 D-7 装 17）。
@@ -124,6 +139,7 @@
 | D-7 | **JDK 统一锁定 17（LTS）**，两端一致，不用本机的 23/24 | Spring Boot 3 基线，最稳、Windows 最易安装；避免本机 java24/maven23/JAVA_HOME 空的不一致。详见 docs/06。 |
 | D-8 | **MySQL 按 8.0 兼容写法**（本机虽为 9.2） | 演示机多为 8.0；init.sql 不用 9.x 专有特性；Connector/J 用 8.x。详见 docs/06。 |
 | D-9 | Spring Boot 3.3.1 + mybatis-starter 3.0.4（原计划 3.2.10/3.0.3） | 本机离线，3.2.10 的 jar 未缓存而 3.3.1 完整；同为 JDK17 基线，不影响架构与跨平台结论。 |
+| D-10 | AI 二期接 **DeepSeek**（OpenAI 兼容 `/chat/completions`）而非 Anthropic | 用户提供 DeepSeek Key；OpenAI 兼容格式最稳、用 Spring `RestClient` 即可，无需新增依赖（离线可编译）。Key 走 gitignored `application-local.yml`(profile=local)，绝不入库。 |
 
 ---
 

@@ -27,14 +27,17 @@ mybatis:
     # 下划线列名 -> 驼峰属性自动映射（user_id -> userId）
     map-underscore-to-camel-case: true
 
-# AI 健身建议（预留，见 docs/05）。一期 false：走 MockAiAdviceService
+# AI 健身建议（见 docs/05）。二期接 DeepSeek（OpenAI 兼容 /chat/completions）。
+# enabled=true 走 RealAiAdviceService；改回 false 走 MockAiAdviceService（离线演示）。
+# api-key 绝不入库：留空走环境变量 AI_API_KEY，或写入 gitignored 的 application-local.yml
+# 并以 --spring.profiles.active=local 加载（见 README / docs/05）。
 ai:
-  enabled: false
-  provider: claude
+  enabled: true
+  provider: deepseek
   api-key: ${AI_API_KEY:}
-  base-url: https://api.anthropic.com
-  model: claude-haiku-4-5
-  timeout-ms: 15000
+  base-url: https://api.deepseek.com
+  model: deepseek-chat
+  timeout-ms: 30000
 
 logging:
   level:
