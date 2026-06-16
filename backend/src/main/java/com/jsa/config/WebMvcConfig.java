@@ -22,8 +22,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authInterceptor)
                 .addPathPatterns("/api/**")
-                // 登录接口公开
-                .excludePathPatterns("/api/auth/login");
+                // 登录、注册接口公开
+                .excludePathPatterns("/api/auth/login", "/api/auth/register");
     }
 
     /**

@@ -15,6 +15,7 @@ public enum ResultCode {
     LOGIN_FAILED(1001, 401, "用户名或密码错误"),
     RECORD_NOT_FOUND(1002, 404, "打卡记录不存在"),
     RECORD_NOT_PENDING(1003, 400, "该记录已审核，不可重复操作"),
+    USERNAME_EXISTS(1004, 409, "用户名已存在"),
 
     INTERNAL_ERROR(500, 500, "服务器内部错误");
 

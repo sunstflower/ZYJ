@@ -23,6 +23,19 @@
 
 ## 工作日志
 
+### 2026-06-16 — 新增普通用户注册功能（注册即登录）✅
+
+- 需求：开放**普通用户**自助注册；管理员不可自助注册，仅保留种子 `admin`。确认密码明文 + 注册即登录（A+A 方案）。
+- **后端**：
+  - `dto/request/RegisterRequest`：username(4-20 字母数字下划线,`@Pattern`)/password(6-20)/nickname(2-20)，`@Valid` 校验。
+  - `ResultCode` 新增 `USERNAME_EXISTS(1004, 409)`。
+  - `UserMapper.insert` + XML（`useGeneratedKeys` 回填 id）。
+  - `AuthService.register`：先 `findByUsername` 查重→抛 1004；**强制 `role="USER"`**；明文密码（与登录比对一致）；`createTime=now`；catch `DataIntegrityViolationException` 作并发唯一键兜底；`@Transactional`；成功复用 `issueFor()` 签 token（与 login 共用，返回 `LoginResponse`）。
+  - `AuthController` 加 `POST /api/auth/register`；`WebMvcConfig` 拦截器白名单加 `/api/auth/register`。
+- **前端**：`api/auth.register`；新页 `pages/Register.jsx`（用户名/昵称/密码/确认密码 + 本地校验，成功 `saveAuth`→跳 `/user`）；`App.jsx` 加公开路由 `/register`；`Login.jsx` 加「注册新用户」链接。
+- **端到端实测**（经 vite 代理 5173→8081）：注册成功返回 token+role=USER(id=4) ✓；重复用户名 409/1004 ✓；注册 `admin` 被 1004 拦下且角色恒 USER ✓；校验失败 400 带字段提示 ✓；新用户登录 ✓ + 提交打卡 ✓；DB 确认 `charlie_4188` 落库为 USER ✓；前端 `vite build` 99 modules 通过 ✓。
+- 决策记录见 D-11。
+
 ### 2026-06-16 — AI 接入真实大模型 DeepSeek（二期 + 三期 includeHistory）✅
 
 - **实现 `RealAiAdviceService`**（`@ConditionalOnProperty ai.enabled=true`，与 Mock 二选一注入 `AiController`）：
@@ -140,6 +153,7 @@
 | D-8 | **MySQL 按 8.0 兼容写法**（本机虽为 9.2） | 演示机多为 8.0；init.sql 不用 9.x 专有特性；Connector/J 用 8.x。详见 docs/06。 |
 | D-9 | Spring Boot 3.3.1 + mybatis-starter 3.0.4（原计划 3.2.10/3.0.3） | 本机离线，3.2.10 的 jar 未缓存而 3.3.1 完整；同为 JDK17 基线，不影响架构与跨平台结论。 |
 | D-10 | AI 二期接 **DeepSeek**（OpenAI 兼容 `/chat/completions`）而非 Anthropic | 用户提供 DeepSeek Key；OpenAI 兼容格式最稳、用 Spring `RestClient` 即可，无需新增依赖（离线可编译）。Key 走 gitignored `application-local.yml`(profile=local)，绝不入库。 |
+| D-11 | 注册**仅产出普通用户**，角色后端强制 `USER`；密码沿用明文；注册即登录 | 管理员仅用种子 `admin` 演示，自助注册管理员有安全风险；明文与现有登录/种子数据一致，改动最小；注册即登录体验更顺。BCrypt 升级需同步改登录与种子，列为后续可选。 |
 
 ---
 

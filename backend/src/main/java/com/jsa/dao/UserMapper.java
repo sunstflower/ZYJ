@@ -9,6 +9,9 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface UserMapper {
 
+    /** 新增用户（注册用），回填自增主键 id */
+    int insert(User user);
+
     /** 按用户名查询（登录用） */
     User findByUsername(@Param("username") String username);
 

@@ -2,6 +2,7 @@ package com.jsa.controller;
 
 import com.jsa.common.Result;
 import com.jsa.dto.request.LoginRequest;
+import com.jsa.dto.request.RegisterRequest;
 import com.jsa.dto.response.LoginResponse;
 import com.jsa.service.AuthService;
 import jakarta.validation.Valid;
@@ -27,5 +28,11 @@ public class AuthController {
     @PostMapping("/login")
     public Result<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         return Result.success("登录成功", authService.login(request));
+    }
+
+    /** POST /api/auth/register —— 注册普通用户，成功即登录 */
+    @PostMapping("/register")
+    public Result<LoginResponse> register(@Valid @RequestBody RegisterRequest request) {
+        return Result.success("注册成功", authService.register(request));
     }
 }

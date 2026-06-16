@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { login } from '../api/auth'
 import { saveAuth } from '../store/auth'
@@ -63,6 +63,12 @@ export default function Login() {
         >
           {loading ? '登录中…' : '登录'}
         </button>
+        <p className="text-center text-sm text-gray-500">
+          还没有账号？
+          <Link to="/register" className="text-blue-600 hover:underline ml-1">
+            注册新用户
+          </Link>
+        </p>
       </form>
     </div>
   )

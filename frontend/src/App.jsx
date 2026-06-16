@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { getToken, isAdmin } from './store/auth'
 import Login from './pages/Login'
+import Register from './pages/Register'
 import UserHome from './pages/UserHome'
 import AdminHome from './pages/AdminHome'
 
@@ -19,6 +20,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route
         path="/user"
         element={
