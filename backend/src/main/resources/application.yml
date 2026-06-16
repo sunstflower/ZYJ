@@ -15,7 +15,7 @@ spring:
     url: jdbc:mysql://localhost:3306/jsa?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     # 演示机不同时，仅改此处账号密码，勿改代码（见 docs/02 第8节）
-    password: root
+    password: 520213
 
 # MyBatis 配置
 mybatis:

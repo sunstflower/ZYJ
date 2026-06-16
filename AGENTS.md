@@ -23,6 +23,21 @@
 
 ## 工作日志
 
+### 2026-06-16 — 接入本机 MySQL8 + 端到端联调通过 ✅
+
+- 本机 MySQL 实测：`mysql` 已切换为 Homebrew **8.0.46**（brew 服务 `mysql@8.0` 已 started），密码 `520213`。`application.yml` 密码已更新。
+- 执行 `db/init.sql` 成功：3 表 + 3 用户 + 5 运动项目 + 4 打卡记录（覆盖三状态）。
+- `mvn -o spring-boot:run` 启动成功，**0.7s 连上 MySQL 并 Started**。
+  - 坑：默认 8080 被 **Docker**（com.docker.backend）占用，启动报 "Port 8080 was already in use"。验证时改用 `--server.port=8081`。演示机若无此冲突仍用 8080；如冲突，改 `application.yml` 的 `server.port` 即可。已记入下方「困难与问题记录」。
+- curl 端到端验证全部通过：
+  - 登录成功 / 错误密码(1001) / 未带 token(401) ✓
+  - 运动项目列表 ✓；提交打卡 ✓；本人记录 ✓
+  - 管理员登录 ✓；普通用户访问管理接口(403) ✓；查看全部/待审核 ✓
+  - 审核通过 ✓ → DB 中 id=5 状态确为 APPROVED+reviewer_id+review_time ✓
+  - 重复审核(1003) ✓；审核不存在记录(1002) ✓
+  - AI 建议 Mock 返回 ✓
+- 验证后已停止后台进程、清理 app.log。**后端功能确认可用。** 前端尚未实际 `npm install` 跑起来联调（本环境无外网装包），留待用户机器。
+
 ### 2026-06-16 — 实现后端业务逻辑 + 编译验证通过
 
 - **Mapper SQL**（替换原 TODO 注释为实际语句）：
@@ -108,4 +123,7 @@
 
 > 业务代码实现过程中遇到的所有困难记录于此。格式：日期 / 现象 / 原因 / 解决或现状。
 
-（暂无 — 尚未进入编码阶段）
+### 2026-06-16 / 8080 端口被 Docker 占用
+- **现象**：`mvn spring-boot:run` 报 `APPLICATION FAILED TO START ... Port 8080 was already in use`。
+- **原因**：本机 Docker（com.docker.backend）正监听 `*:8080`（`lsof -iTCP:8080`）。与后端默认端口冲突，非代码问题。
+- **解决**：验证时用 `--server.port=8081` 临时改端口；应用本身正常。演示机若无 Docker 占用可继续用 8080；若占用，改 `application.yml` 的 `server.port`。
