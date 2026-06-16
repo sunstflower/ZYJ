@@ -23,6 +23,20 @@
 
 ## 工作日志
 
+### 2026-06-16 — 实现后端业务逻辑 + 编译验证通过
+
+- **Mapper SQL**（替换原 TODO 注释为实际语句）：
+  - `UserMapper.xml`：findByUsername / findById。
+  - `SportMapper.xml`：findAll / findById。
+  - `CheckinRecordMapper.xml`：insert(useGeneratedKeys 回填 id) / findById / findByUser(联表 sport，按状态可选过滤) / findAll(联表 user+sport+审核人) / updateReview。依赖 `map-underscore-to-camel-case` 自动映射，联表列用别名(sport_name/reviewer_nickname)对齐 VO 属性。
+- **Service 实现**（替换 UnsupportedOperationException 桩）：
+  - `AuthServiceImpl.login`：查用户→明文比对密码→失败抛 LOGIN_FAILED→成功 TokenStore 下发 token + 组装 LoginResponse。
+  - `SportServiceImpl.listAll`：findAll → SportVO。
+  - `CheckinServiceImpl`：submit(校验项目存在/默认 PENDING/服务端时间/回填 VO，@Transactional)、listMine、listAll、review(校验存在与 PENDING、APPROVE/REJECT→APPROVED/REJECTED、写审核人+时间，@Transactional)。
+- **编译验证**：本机无外网且 `3.2.10` 的 jar 从未下载成功（仅有 .pom）；本地缓存中 `3.3.1` 的 jar 完整。故将 Spring Boot `3.2.10→3.3.1`、mybatis-spring-boot-starter `3.0.3→3.0.4`（均 JDK17 基线，跨平台结论不变，见决策 D-9），`mvn -o compile` **编译通过**（37 个类，mapper XML 已入 classpath）。
+- **未做**：未实际启动（本环境无 MySQL、无外网）；未跑集成测试。需在装好 JDK17 + MySQL 的机器上 `mvn spring-boot:run` 端到端联调。
+- 同步更新：docs/02 技术选型、根 README 的 Spring Boot 版本号 → 3.3.x。
+
 ### 2026-06-16 — 搭建前后端工程骨架（按文档）
 
 - **后端**（`backend/`，Maven）：
@@ -76,6 +90,7 @@
 | D-6 | AI 接口一期用 `MockAiAdviceService` 返回假数据 | 主体功能不依赖外部服务即可端到端演示；二期再接真实大模型。 |
 | D-7 | **JDK 统一锁定 17（LTS）**，两端一致，不用本机的 23/24 | Spring Boot 3 基线，最稳、Windows 最易安装；避免本机 java24/maven23/JAVA_HOME 空的不一致。详见 docs/06。 |
 | D-8 | **MySQL 按 8.0 兼容写法**（本机虽为 9.2） | 演示机多为 8.0；init.sql 不用 9.x 专有特性；Connector/J 用 8.x。详见 docs/06。 |
+| D-9 | Spring Boot 3.3.1 + mybatis-starter 3.0.4（原计划 3.2.10/3.0.3） | 本机离线，3.2.10 的 jar 未缓存而 3.3.1 完整；同为 JDK17 基线，不影响架构与跨平台结论。 |
 
 ---
 

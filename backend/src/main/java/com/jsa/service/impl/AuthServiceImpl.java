@@ -1,20 +1,20 @@
 package com.jsa.service.impl;
 
+import com.jsa.common.AuthSession;
+import com.jsa.common.BusinessException;
+import com.jsa.common.ResultCode;
 import com.jsa.common.TokenStore;
 import com.jsa.dao.UserMapper;
 import com.jsa.dto.request.LoginRequest;
 import com.jsa.dto.response.LoginResponse;
+import com.jsa.dto.response.UserVO;
+import com.jsa.entity.User;
 import com.jsa.service.AuthService;
 import org.springframework.stereotype.Service;
 
 /**
- * 认证业务实现。
- *
- * TODO（业务实现阶段）：
- *  1. 按 username 查 user；
- *  2. 校验密码（演示可明文比对，后续可换 BCrypt）；
- *  3. 失败抛 BusinessException(ResultCode.LOGIN_FAILED)；
- *  4. 成功用 TokenStore 下发 token，组装 LoginResponse（含 UserVO）。
+ * 认证业务实现（见 docs/04 3.1）。
+ * 演示阶段密码明文比对；如需提升可改为 BCrypt（见 docs/03 备注）。
  */
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -29,7 +29,16 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse login(LoginRequest request) {
-        // TODO: 实现登录校验与 token 下发
-        throw new UnsupportedOperationException("AuthService.login 尚未实现（骨架阶段）");
+        User user = userMapper.findByUsername(request.getUsername());
+        // 用户不存在或密码不匹配，统一返回"用户名或密码错误"（不泄露具体哪一项）
+        if (user == null || !user.getPassword().equals(request.getPassword())) {
+            throw new BusinessException(ResultCode.LOGIN_FAILED);
+        }
+
+        String token = tokenStore.issue(
+                new AuthSession(user.getId(), user.getUsername(), user.getRole()));
+
+        UserVO userVO = new UserVO(user.getId(), user.getUsername(), user.getNickname(), user.getRole());
+        return new LoginResponse(token, userVO);
     }
 }

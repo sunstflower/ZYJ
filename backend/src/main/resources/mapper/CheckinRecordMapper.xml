@@ -3,84 +3,75 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jsa.dao.CheckinRecordMapper">
 
-    <!-- 原始记录映射 -->
-    <resultMap id="RecordMap" type="com.jsa.entity.CheckinRecord">
-        <id property="id" column="id"/>
-        <result property="userId" column="user_id"/>
-        <result property="sportId" column="sport_id"/>
-        <result property="content" column="content"/>
-        <result property="status" column="status"/>
-        <result property="checkinTime" column="checkin_time"/>
-        <result property="reviewerId" column="reviewer_id"/>
-        <result property="reviewTime" column="review_time"/>
-    </resultMap>
+    <!-- 列名 -> 驼峰属性由 map-underscore-to-camel-case 自动映射；联表别名按目标属性命名 -->
 
-    <!-- 联表视图映射（含用户名/项目名/审核人昵称） -->
-    <resultMap id="CheckinVoMap" type="com.jsa.dto.response.CheckinVO">
-        <id property="id" column="id"/>
-        <result property="userId" column="user_id"/>
-        <result property="username" column="username"/>
-        <result property="nickname" column="nickname"/>
-        <result property="sportId" column="sport_id"/>
-        <result property="sportName" column="sport_name"/>
-        <result property="content" column="content"/>
-        <result property="status" column="status"/>
-        <result property="checkinTime" column="checkin_time"/>
-        <result property="reviewerId" column="reviewer_id"/>
-        <result property="reviewerNickname" column="reviewer_nickname"/>
-        <result property="reviewTime" column="review_time"/>
-    </resultMap>
-
-    <!-- TODO: insert（useGeneratedKeys 回填 id） -->
-    <!--
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO checkin_record (user_id, sport_id, content, status, checkin_time)
-        VALUES (#{userId}, #{sportId}, #{content}, #{status}, #{checkinTime})
+    <!-- 新增打卡记录，回填自增主键 -->
+    <insert id="insert" parameterType="com.jsa.entity.CheckinRecord"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO checkin_record (user_id, sport_id, content, status, checkin_time, reviewer_id, review_time)
+        VALUES (#{userId}, #{sportId}, #{content}, #{status}, #{checkinTime}, #{reviewerId}, #{reviewTime})
     </insert>
-    -->
 
-    <!-- TODO: findById -->
-    <!--
-    <select id="findById" resultMap="RecordMap">
-        SELECT * FROM checkin_record WHERE id = #{id}
+    <!-- 按 id 查询原始记录（审核时校验状态用） -->
+    <select id="findById" resultType="com.jsa.entity.CheckinRecord">
+        SELECT id, user_id, sport_id, content, status, checkin_time, reviewer_id, review_time
+        FROM checkin_record
+        WHERE id = #{id}
     </select>
-    -->
 
-    <!-- TODO: findByUser（联表 sport，按状态可选过滤） -->
-    <!--
-    <select id="findByUser" resultMap="CheckinVoMap">
-        SELECT r.*, s.name AS sport_name
+    <!-- 某用户的打卡记录（联表运动项目名），可按状态过滤 -->
+    <select id="findByUser" resultType="com.jsa.dto.response.CheckinVO">
+        SELECT r.id,
+               r.user_id,
+               r.sport_id,
+               s.name AS sport_name,
+               r.content,
+               r.status,
+               r.checkin_time,
+               r.reviewer_id,
+               r.review_time
         FROM checkin_record r
         JOIN sport s ON r.sport_id = s.id
         WHERE r.user_id = #{userId}
-        <if test="status != null and status != ''"> AND r.status = #{status} </if>
+        <if test="status != null and status != ''">
+            AND r.status = #{status}
+        </if>
         ORDER BY r.checkin_time DESC
     </select>
-    -->
 
-    <!-- TODO: findAll（联表 user + sport + 审核人，管理员） -->
-    <!--
-    <select id="findAll" resultMap="CheckinVoMap">
-        SELECT r.*, u.username, u.nickname, s.name AS sport_name,
-               rv.nickname AS reviewer_nickname
+    <!-- 全部打卡记录（联表用户、项目、审核人），可按状态过滤（管理员） -->
+    <select id="findAll" resultType="com.jsa.dto.response.CheckinVO">
+        SELECT r.id,
+               r.user_id,
+               u.username,
+               u.nickname,
+               r.sport_id,
+               s.name AS sport_name,
+               r.content,
+               r.status,
+               r.checkin_time,
+               r.reviewer_id,
+               rv.nickname AS reviewer_nickname,
+               r.review_time
         FROM checkin_record r
-        JOIN user u   ON r.user_id = u.id
-        JOIN sport s  ON r.sport_id = s.id
+        JOIN user u ON r.user_id = u.id
+        JOIN sport s ON r.sport_id = s.id
         LEFT JOIN user rv ON r.reviewer_id = rv.id
         <where>
-            <if test="status != null and status != ''"> r.status = #{status} </if>
+            <if test="status != null and status != ''">
+                r.status = #{status}
+            </if>
         </where>
         ORDER BY r.checkin_time DESC
     </select>
-    -->
 
-    <!-- TODO: updateReview -->
-    <!--
+    <!-- 更新审核结果 -->
     <update id="updateReview">
         UPDATE checkin_record
-        SET status = #{status}, reviewer_id = #{reviewerId}, review_time = #{reviewTime}
+        SET status = #{status},
+            reviewer_id = #{reviewerId},
+            review_time = #{reviewTime}
         WHERE id = #{id}
     </update>
-    -->
 
 </mapper>

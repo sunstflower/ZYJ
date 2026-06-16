@@ -4,11 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Spring Boot 3.2.x：基线 JDK 17（见 docs/06 决策 D-7） -->
+    <!-- Spring Boot 3.3.x：基线 JDK 17（见 docs/06 决策 D-7） -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.10</version>
+        <version>3.3.1</version>
         <relativePath/>
     </parent>
 
@@ -24,7 +24,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mybatis-spring-boot.version>3.0.3</mybatis-spring-boot.version>
+        <mybatis-spring-boot.version>3.0.4</mybatis-spring-boot.version>
     </properties>
 
     <dependencies>

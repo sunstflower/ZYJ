@@ -2,7 +2,7 @@
 
 分角色（普通用户 / 管理员）的健身打卡管理系统。课程演示性大作业。
 
-- **后端**：Spring Boot 3.2 + MyBatis + MySQL，RESTful API（JDK 17）
+- **后端**：Spring Boot 3.3 + MyBatis + MySQL，RESTful API（JDK 17）
 - **前端**：React 18 + Vite + Tailwind CSS + react-hot-toast
 - **设计文档**：见 [`docs/`](./docs/README.md)
 - **工作日志**：见 [`AGENTS.md`](./AGENTS.md)

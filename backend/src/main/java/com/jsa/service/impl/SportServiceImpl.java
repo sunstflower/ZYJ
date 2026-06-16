@@ -2,15 +2,14 @@ package com.jsa.service.impl;
 
 import com.jsa.dao.SportMapper;
 import com.jsa.dto.response.SportVO;
+import com.jsa.entity.Sport;
 import com.jsa.service.SportService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
- * 运动项目业务实现。
- *
- * TODO（业务实现阶段）：查询全部运动项目并转换为 SportVO。
+ * 运动项目业务实现（见 docs/04 3.2）。
  */
 @Service
 public class SportServiceImpl implements SportService {
@@ -23,7 +22,12 @@ public class SportServiceImpl implements SportService {
 
     @Override
     public List<SportVO> listAll() {
-        // TODO: sportMapper.findAll() -> List<SportVO>
-        throw new UnsupportedOperationException("SportService.listAll 尚未实现（骨架阶段）");
+        return sportMapper.findAll().stream()
+                .map(this::toVO)
+                .toList();
+    }
+
+    private SportVO toVO(Sport s) {
+        return new SportVO(s.getId(), s.getName(), s.getDescription());
     }
 }
